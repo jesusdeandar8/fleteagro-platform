@@ -1,0 +1,6 @@
+{
+  "/dashboard/shipper/page": "app/dashboard/shipper/page.js",
+  "/dashboard/driver/page": "app/dashboard/driver/page.js",
+  "/auth/register/page": "app/auth/register/page.js",
+  "/dashboard/shipper/publicar/page": "app/dashboard/shipper/publicar/page.js"
+}
