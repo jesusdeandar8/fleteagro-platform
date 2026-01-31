@@ -1,8 +1,1 @@
-{
-  "/dashboard/shipper/programar/page": "app/dashboard/shipper/programar/page.js",
-  "/pago-exitoso/page": "app/pago-exitoso/page.js",
-  "/dashboard/driver/page": "app/dashboard/driver/page.js",
-  "/dashboard/admin/page": "app/dashboard/admin/page.js",
-  "/calificar/page": "app/calificar/page.js",
-  "/matching/page": "app/matching/page.js"
-}
+{}
