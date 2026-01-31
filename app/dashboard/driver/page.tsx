@@ -78,6 +78,7 @@ export default function DriverDashboard() {
   const [loads, setLoads] = useState<any[]>([]);
   const [misRutas, setMisRutas] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [processingPayment, setProcessingPayment] = useState<string | null>(null);
   const [donFleteInsights, setDonFleteInsights] = useState<any>(null);
 
   useEffect(() => {
@@ -107,16 +108,39 @@ export default function DriverDashboard() {
     setLoading(false);
   };
 
-  const acceptLoad = async (loadId: string) => {
+  const acceptLoad = async (loadId: string, price: number) => {
+    setProcessingPayment(loadId);
+    
     const { error } = await supabase
       .from("loads")
       .update({ status: "matched" })
       .eq("id", loadId);
 
     if (!error) {
-      alert("¡Carga aceptada! El productor será notificado.");
-      fetchData();
+      // Calcular comisión del 5%
+      const comision = Math.round(price * 0.05 * 100); // En centavos para Stripe
+      
+      // Crear sesión de pago
+      const response = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: comision,
+          tripId: loadId,
+          description: `Comisión 5% por carga - $${price.toLocaleString()} MXN`,
+        }),
+      });
+
+      const data = await response.json();
+      
+      if (data.url) {
+        window.location.href = data.url; // Redirigir a Stripe
+      } else {
+        alert("¡Carga aceptada! El productor será notificado.");
+        fetchData();
+      }
     }
+    setProcessingPayment(null);
   };
 
   return (
@@ -235,13 +259,17 @@ export default function DriverDashboard() {
                       <p className="text-2xl font-bold text-green-600 mt-2">
                         💰 ${load.offered_price?.toLocaleString()} MXN
                       </p>
+                      <p className="text-sm text-orange-600">
+                        Comisión FleteAgro (5%): ${((load.offered_price || 0) * 0.05).toLocaleString()} MXN
+                      </p>
                     </div>
                     <div className="text-right">
                       <button
-                        onClick={() => acceptLoad(load.id)}
-                        className="bg-green-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-700"
+                        onClick={() => acceptLoad(load.id, load.offered_price || 0)}
+                        disabled={processingPayment === load.id}
+                        className="bg-green-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-700 disabled:opacity-50"
                       >
-                        Aceptar Carga
+                        {processingPayment === load.id ? "Procesando..." : "Aceptar Carga"}
                       </button>
                     </div>
                   </div>

@@ -45,6 +45,16 @@
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/matching/page.js"
+    ],
+    "/dashboard/shipper/publicar/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/shipper/publicar/page.js"
+    ],
+    "/pago-exitoso/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/pago-exitoso/page.js"
     ]
   }
 }
