@@ -1,7 +1,8 @@
 {
-  "/dashboard/driver/page": "app/dashboard/driver/page.js",
-  "/dashboard/shipper/page": "app/dashboard/shipper/page.js",
+  "/calificar/page": "app/calificar/page.js",
   "/dashboard/shipper/programar/page": "app/dashboard/shipper/programar/page.js",
   "/dashboard/driver/rutas/page": "app/dashboard/driver/rutas/page.js",
-  "/page": "app/page.js"
+  "/dashboard/admin/page": "app/dashboard/admin/page.js",
+  "/dashboard/driver/page": "app/dashboard/driver/page.js",
+  "/dashboard/shipper/page": "app/dashboard/shipper/page.js"
 }
