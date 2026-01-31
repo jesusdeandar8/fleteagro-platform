@@ -108,15 +108,65 @@ export default function DriverDashboard() {
     setLoading(false);
   };
 
+  // Función para notificar al productor via WhatsApp
+  const notificarProductor = async (shipperId: string, carga: any) => {
+    try {
+      // 1. Buscar el teléfono del productor en la tabla users
+      const { data: productor } = await supabase
+        .from("users")
+        .select("phone, name")
+        .eq("id", shipperId)
+        .single();
+
+      if (!productor?.phone) {
+        console.log("Productor sin teléfono registrado");
+        return;
+      }
+
+      // 2. Crear mensaje personalizado
+      const mensaje = `🚛 ¡Buenas noticias, ${productor.name || "productor"}!\n\nTu carga de ${carga.cargo_type} (${carga.weight_tons} ton) de ${carga.origin} a ${carga.destination} ha sido ACEPTADA por un transportista.\n\nPrecio acordado: $${carga.offered_price?.toLocaleString()} MXN\n\n📱 FleteAgro`;
+
+      // 3. Enviar WhatsApp
+      await fetch("/api/whatsapp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          to: productor.phone,
+          message: mensaje,
+        }),
+      });
+
+      console.log("WhatsApp enviado al productor");
+    } catch (error) {
+      console.error("Error enviando notificación:", error);
+      // No bloqueamos el flujo si falla la notificación
+    }
+  };
+
   const acceptLoad = async (loadId: string, price: number) => {
     setProcessingPayment(loadId);
-    
+
+    // Primero obtenemos la carga completa para tener el shipper_id
+    const { data: carga } = await supabase
+      .from("loads")
+      .select("*")
+      .eq("id", loadId)
+      .single();
+
+    if (!carga) {
+      alert("Error: No se encontró la carga");
+      setProcessingPayment(null);
+      return;
+    }
+
     const { error } = await supabase
       .from("loads")
       .update({ status: "matched" })
       .eq("id", loadId);
 
     if (!error) {
+      // Notificar al productor via WhatsApp
+      await notificarProductor(carga.shipper_id, carga);
       // Calcular comisión del 5%
       const comision = Math.round(price * 0.05 * 100); // En centavos para Stripe
       

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 
@@ -12,6 +12,7 @@ export default function PublicarCarga() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [userId, setUserId] = useState<string | null>(null);
   const [form, setForm] = useState({
     origin: "",
     destination: "",
@@ -20,6 +21,17 @@ export default function PublicarCarga() {
     pickup_date: "",
     offered_price: "",
   });
+
+  // Obtener el usuario actual al cargar la página
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUserId(user.id);
+      }
+    };
+    getUser();
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -38,6 +50,7 @@ export default function PublicarCarga() {
       pickup_date: form.pickup_date,
       offered_price: parseFloat(form.offered_price),
       status: "pending",
+      shipper_id: userId, // ID del productor que publica la carga
     });
 
     if (error) {
